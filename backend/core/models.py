@@ -44,7 +44,7 @@ class User(AbstractUser):
     address = models.CharField(max_length=255)
     city = models.CharField(max_length=100)
     state = models.CharField(max_length=100)
-    pincode = models.CharFieled(max_length=6)
+    pincode = models.CharField(max_length=6)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
