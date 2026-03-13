@@ -44,7 +44,7 @@ class User(AbstractUser):
     address = models.CharField(max_length=255)
     city = models.CharField(max_length=100)
     state = models.CharField(max_length=100)
-    pincode = models.CharField(max_length=10)
+    pincode = models.CharFiled(max_length=6)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -76,6 +76,8 @@ class Store(models.Model):
     acc_holder_name = models.CharField(max_length=255)
     plan = models.CharField(max_length=20, choices=PLANS)
     pay_days = models.CharField(max_length=20, choices=PAY_DAYS)
+    is_active = models.BooleanField(default=False)
+    pincode = models.CharField(max_length=6)
 
     def __str__(self):
         return f"{self.name} - {self.id}"
