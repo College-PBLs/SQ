@@ -1,197 +1,311 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { registerUser } from "../services/authService";
 import { stateCityMap } from "../utils/cityStateMap";
 import logo from "../assets/logo.jpeg";
+import { toast } from "react-toastify";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 export default function Register() {
+
+  const navigate = useNavigate();
+
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const [form, setForm] = useState({
-    fullName: "",
+    full_name: "",
     email: "",
     phone: "",
+    password: "",
+    confirmPassword: "",
     address: "",
     state: "",
     city: "",
     pincode: ""
   });
 
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
   const handleStateChange = (state) => {
     setForm({
       ...form,
       state,
-      city: "" // reset city when state changes
+      city: ""
     });
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    const res = await registerUser(form);
-
-    if (res.status === 201) {
-      alert("Account Created Successfully");
+    if (form.password !== form.confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
     }
 
-  } catch (err) {
-    alert(err.message);
-  }
-};
+    if (form.phone.length !== 10) {
+      toast.error("Phone number must be 10 digits");
+      return;
+    }
 
+    if (form.pincode.length !== 6) {
+      toast.error("Pincode must be 6 digits");
+      return;
+    }
+
+    const { confirmPassword, ...payload } = form;
+
+    try {
+
+      setLoading(true);
+
+      const res = await registerUser(payload);
+
+      toast.success(res.message || "Successfully Registered");
+
+      setForm({
+        full_name: "",
+        email: "",
+        phone: "",
+        password: "",
+        confirmPassword: "",
+        address: "",
+        state: "",
+        city: "",
+        pincode: ""
+      });
+
+      navigate("/login");
+
+    } catch (err) {
+
+      toast.error(err.message || "Registration Failed");
+
+      setForm(prev => ({
+        ...prev,
+        password: "",
+        confirmPassword: ""
+      }));
+
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-      //   <div className="min-h-screen flex items-center justify-center px-4 py-8">
-      // <div className="w-full max-w-5xl flex rounded-2xl overflow-hidden">
+    <div className="min-h-screen flex flex-col">
 
+      <div className="flex-1 flex">
 
-     <div className="min-h-screen flex flex-col">
+        {/* Left Section */}
+        <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-teal-500 via-cyan-500 to-blue-500 items-center justify-center p-8">
 
+          <div className="text-center text-white max-w-md">
 
-    <div className="flex-1 flex">
-        {/* Left Side - Promotional (reverse order on desktop) */}
-        <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-teal-500 via-cyan-500 to-blue-500 items-center justify-center p-8 relative overflow-hidden">
-        
-          <div className="text-center text-white z-10 max-w-md">
-            <h2 className="text-5xl font-bold mb-6 drop-shadow-lg">Welcome Back!</h2>
-            <p className="text-xl mb-8 opacity-90 leading-relaxed">
+            <h2 className="text-5xl font-bold mb-6">
+              Welcome Back!
+            </h2>
+
+            <p className="text-xl mb-8 opacity-90">
               To keep connected with us please login with your personal info
             </p>
+
             <Link
               to="/login"
-              className="inline-block px-12 py-4 bg-white text-teal-600 rounded-full font-semibold hover:bg-gray-100 transform hover:scale-105 transition-all duration-300 shadow-2xl hover:shadow-3xl"
+              className="px-10 py-3 bg-white text-teal-600 rounded-full font-semibold hover:bg-gray-100"
             >
               Sign In
             </Link>
+
           </div>
+
         </div>
 
-        {/* Right Side - Register Form */}
-        <div className="w-full lg:w-1/2 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-8">
-          <div className="w-full max-w-md  border-3 border-teal-500 rounded-2xl">
-            
-            <div className="bg-white rounded-2xl shadow-2xl p-10">
+        {/* Right Section */}
+        <div className="w-full lg:w-1/2 flex items-center justify-center bg-gray-50 p-8">
+
+          <div className="w-full max-w-md border-2 border-teal-500 rounded-2xl">
+
+            <div className="bg-white rounded-2xl shadow-xl p-8">
+
               {/* Logo */}
               <div className="flex justify-center mb-6">
-                <img 
-                  src={logo} 
-                  alt="Logo" 
-                  className="h-16 w-auto object-contain"
+                <img
+                  src={logo}
+                  alt="logo"
+                  className="h-16"
                 />
               </div>
 
-              <h1 className="text-3xl font-bold text-gray-800 text-center mb-2">
+              <h1 className="text-3xl font-bold text-center mb-6">
                 Create Account
               </h1>
-           
-              <form onSubmit={handleSubmit} className="space-y-4 mt-6">
-                <div className="grid grid-cols-2 gap-3">
-                  <input
-                    placeholder="Full Name"
-                    className="col-span-2 px-4 py-3 bg-gray-100 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-300"
-                    onChange={(e) =>
-                      setForm({ ...form, fullName: e.target.value })
-                    }
-                    required
-                  />
 
-                  <input
-                    type="email"
-                    placeholder="Email"
-                    className="col-span-2 px-4 py-3 bg-gray-100 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-300"
-                    onChange={(e) =>
-                      setForm({ ...form, email: e.target.value })
-                    }
-                    required
-                  />
+              <form onSubmit={handleSubmit} className="space-y-4">
 
-                  <input
-                    placeholder="Phone Number"
-                    className="col-span-2 px-4 py-3 bg-gray-100 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-300"
-                    onChange={(e) =>
-                      setForm({ ...form, phone: e.target.value })
-                    }
-                    required
-                  />
+                <input
+                  name="full_name"
+                  placeholder="Full Name"
+                  className="w-full px-4 py-3 bg-gray-100 rounded-lg"
+                  value={form.full_name}
+                  onChange={handleChange}
+                  required
+                />
 
-                  <input
-                    placeholder="Address"
-                    className="col-span-2 px-4 py-3 bg-gray-100 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-300"
-                    onChange={(e) =>
-                      setForm({ ...form, address: e.target.value })
-                    }
-                    required
-                  />
+                <input
+                  name="email"
+                  type="email"
+                  placeholder="Email"
+                  className="w-full px-4 py-3 bg-gray-100 rounded-lg"
+                  value={form.email}
+                  onChange={handleChange}
+                  required
+                />
 
-                  <select
-                    className="px-4 py-3 bg-gray-100 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-300"
-                    value={form.state}
-                    onChange={(e) => handleStateChange(e.target.value)}
-                    required
-                  >
-                    <option value="">Select State</option>
-                    {Object.keys(stateCityMap).map((state) => (
-                      <option key={state} value={state}>
-                        {state}
+                <input
+                  name="phone"
+                  type="tel"
+                  placeholder="Phone Number"
+                  className="w-full px-4 py-3 bg-gray-100 rounded-lg"
+                  value={form.phone}
+                  onChange={handleChange}
+                  required
+                />
+
+                <input
+                  name="address"
+                  placeholder="Address"
+                  className="w-full px-4 py-3 bg-gray-100 rounded-lg"
+                  value={form.address}
+                  onChange={handleChange}
+                  required
+                />
+
+                {/* State */}
+                <select
+                  className="w-full px-4 py-3 bg-gray-100 rounded-lg"
+                  value={form.state}
+                  onChange={(e) => handleStateChange(e.target.value)}
+                  required
+                >
+                  <option value="">Select State</option>
+                  {Object.keys(stateCityMap).map((state) => (
+                    <option key={state} value={state}>
+                      {state}
+                    </option>
+                  ))}
+                </select>
+
+                {/* City */}
+                <select
+                  className="w-full px-4 py-3 bg-gray-100 rounded-lg"
+                  value={form.city}
+                  onChange={(e) =>
+                    setForm({ ...form, city: e.target.value })
+                  }
+                  disabled={!form.state}
+                  required
+                >
+                  <option value="">Select City</option>
+
+                  {form.state &&
+                    stateCityMap[form.state].map((city) => (
+                      <option key={city} value={city}>
+                        {city}
                       </option>
                     ))}
-                  </select>
 
-                  <select
-                    className="px-4 py-3 bg-gray-100 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-300"
-                    value={form.city}
-                    onChange={(e) =>
-                      setForm({ ...form, city: e.target.value })
-                    }
-                    disabled={!form.state}
-                    required
-                  >
-                    <option value="">Select City</option>
-                    {form.state &&
-                      stateCityMap[form.state].map((city) => (
-                        <option key={city} value={city}>
-                          {city}
-                        </option>
-                      ))}
-                  </select>
+                </select>
+
+                <input
+                  name="pincode"
+                  placeholder="Pincode"
+                  className="w-full px-4 py-3 bg-gray-100 rounded-lg"
+                  value={form.pincode}
+                  onChange={handleChange}
+                  required
+                />
+
+                {/* Password */}
+                <div className="relative">
 
                   <input
-                    placeholder="Pincode"
-                    className="col-span-2 px-4 py-3 bg-gray-100 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-300"
-                    onChange={(e) =>
-                      setForm({ ...form, pincode: e.target.value })
-                    }
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    placeholder="Password"
+                    className="w-full px-4 py-3 bg-gray-100 rounded-lg"
+                    value={form.password}
+                    onChange={handleChange}
                     required
                   />
+
+                  <button
+                    type="button"
+                    className="absolute right-4 top-3"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+
                 </div>
 
+                {/* Confirm Password */}
+                <div className="relative">
+
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    name="confirmPassword"
+                    placeholder="Confirm Password"
+                    className="w-full px-4 py-3 bg-gray-100 rounded-lg"
+                    value={form.confirmPassword}
+                    onChange={handleChange}
+                    required
+                  />
+
+                  <button
+                    type="button"
+                    className="absolute right-4 top-3"
+                    onClick={() =>
+                      setShowConfirmPassword(!showConfirmPassword)
+                    }
+                  >
+                    {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+
+                </div>
+
+                {/* Button */}
                 <button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-teal-500 to-teal-600 text-white py-3 rounded-lg font-semibold hover:from-teal-600 hover:to-teal-700 transform hover:scale-[1.02] transition-all duration-300 shadow-lg hover:shadow-xl mt-6"
+                  disabled={loading}
+                  className="w-full bg-teal-500 text-white py-3 rounded-lg font-semibold hover:bg-teal-600"
                 >
-                  Sign Up
+                  {loading ? "Creating..." : "Sign Up"}
                 </button>
 
-                {/* Login link for mobile */}
-<p className="text-center  text-gray-600 mt-4 lg:hidden">
-  Already have an account?{" "}
-  <Link
-    to="/login"
-    className="text-teal-600 font-semibold hover:underline"
-  >
-    Login
-  </Link>
-</p>
-
-
-
+                <p className="text-center text-gray-600 mt-4 lg:hidden">
+                  Already have an account?{" "}
+                  <Link
+                    to="/login"
+                    className="text-teal-600 font-semibold"
+                  >
+                    Login
+                  </Link>
+                </p>
 
               </form>
+
             </div>
+
           </div>
+
         </div>
+
       </div>
 
-    
     </div>
   );
 }

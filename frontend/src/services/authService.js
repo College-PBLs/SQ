@@ -3,45 +3,49 @@ const BASE_URL = import.meta.env.VITE_BASE_URL;
 export async function loginUser(data) {
   const res = await fetch(`${BASE_URL}/auth/login/`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json"
+    },
     body: JSON.stringify(data)
   });
 
   const result = await res.json();
 
   if (!res.ok) {
-    throw new Error(
-      result?.detail || 
-      result?.message || 
-      "Login failed"
-    );
+    const errorMessage =
+      result?.error ||
+      result?.detail ||
+      result?.message ||
+      Object.values(result)?.flat()?.[0] ||
+      "Login failed";
+
+    throw new Error(errorMessage);
   }
 
-  return {
-    data: result,
-    status: res.status
-  };
+  return result;   // return API response directly
 }
 
 export async function registerUser(data) {
   const res = await fetch(`${BASE_URL}/auth/register/`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json"
+    },
     body: JSON.stringify(data)
   });
 
   const result = await res.json();
 
   if (!res.ok) {
-    throw new Error(
-      result?.detail || 
-      result?.message || 
-      "Registration failed"
-    );
+    const errorMessage =
+      result?.error ||
+      result?.detail ||
+      result?.message ||
+      Object.values(result)?.flat()?.[0] ||
+      "Registration failed";
+
+    throw new Error(errorMessage);
   }
 
-  return {
-    data: result,
-    status: res.status
-  };
+  return result;   // return API response directly
 }
