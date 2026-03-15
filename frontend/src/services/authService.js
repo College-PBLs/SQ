@@ -47,5 +47,5 @@ export async function registerUser(data) {
     throw new Error(errorMessage);
   }
 
-  return result;   // return API response directly
+  return result;   
 }

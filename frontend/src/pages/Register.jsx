@@ -184,41 +184,43 @@ export default function Register() {
                   required
                 />
 
-                {/* State */}
-                <select
-                  className="w-full px-4 py-3 bg-gray-100 rounded-lg"
-                  value={form.state}
-                  onChange={(e) => handleStateChange(e.target.value)}
-                  required
-                >
-                  <option value="">Select State</option>
-                  {Object.keys(stateCityMap).map((state) => (
-                    <option key={state} value={state}>
-                      {state}
-                    </option>
-                  ))}
-                </select>
+               <div className="grid grid-cols-2 gap-3">
 
-                {/* City */}
-                <select
-                  className="w-full px-4 py-3 bg-gray-100 rounded-lg"
-                  value={form.city}
-                  onChange={(e) =>
-                    setForm({ ...form, city: e.target.value })
-                  }
-                  disabled={!form.state}
-                  required
-                >
-                  <option value="">Select City</option>
+<select
+  className="px-4 py-3 bg-gray-100 rounded-lg"
+  value={form.state}
+  onChange={(e) => handleStateChange(e.target.value)}
+  required
+>
+  <option value="">Select State</option>
+  {Object.keys(stateCityMap).map((state) => (
+    <option key={state} value={state}>
+      {state}
+    </option>
+  ))}
+</select>
 
-                  {form.state &&
-                    stateCityMap[form.state].map((city) => (
-                      <option key={city} value={city}>
-                        {city}
-                      </option>
-                    ))}
+<select
+  className="px-4 py-3 bg-gray-100 rounded-lg"
+  value={form.city}
+  onChange={(e) =>
+    setForm({ ...form, city: e.target.value })
+  }
+  disabled={!form.state}
+  required
+>
+  <option value="">Select City</option>
 
-                </select>
+  {form.state &&
+    stateCityMap[form.state].map((city) => (
+      <option key={city} value={city}>
+        {city}
+      </option>
+    ))}
+
+</select>
+
+</div>
 
                 <input
                   name="pincode"
@@ -229,53 +231,47 @@ export default function Register() {
                   required
                 />
 
-                {/* Password */}
-                <div className="relative">
+               <div className="grid grid-cols-2 gap-3">
 
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    name="password"
-                    placeholder="Password"
-                    className="w-full px-4 py-3 bg-gray-100 rounded-lg"
-                    value={form.password}
-                    onChange={handleChange}
-                    required
-                  />
+<div className="relative">
+<input
+  type={showPassword ? "text" : "password"}
+  placeholder="Password"
+  className="w-full px-4 py-3 bg-gray-100 rounded-lg"
+  value={form.password}
+  onChange={(e)=>setForm({...form,password:e.target.value})}
+  required
+/>
 
-                  <button
-                    type="button"
-                    className="absolute right-4 top-3"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? <FaEyeSlash /> : <FaEye />}
-                  </button>
+<button
+  type="button"
+  onClick={()=>setShowPassword(!showPassword)}
+  className="absolute right-3 top-3 text-gray-500"
+>
+{showPassword ? <FaEyeSlash/> : <FaEye/>}
+</button>
+</div>
 
-                </div>
+<div className="relative">
+<input
+  type={showConfirmPassword ? "text" : "password"}
+  placeholder="Confirm Password"
+  className="w-full px-4 py-3 bg-gray-100 rounded-lg"
+  value={form.confirmPassword}
+  onChange={(e)=>setForm({...form,confirmPassword:e.target.value})}
+  required
+/>
 
-                {/* Confirm Password */}
-                <div className="relative">
+<button
+  type="button"
+  onClick={()=>setShowConfirmPassword(!showConfirmPassword)}
+  className="absolute right-3 top-3 text-gray-500"
+>
+{showConfirmPassword ? <FaEyeSlash/> : <FaEye/>}
+</button>
+</div>
 
-                  <input
-                    type={showConfirmPassword ? "text" : "password"}
-                    name="confirmPassword"
-                    placeholder="Confirm Password"
-                    className="w-full px-4 py-3 bg-gray-100 rounded-lg"
-                    value={form.confirmPassword}
-                    onChange={handleChange}
-                    required
-                  />
-
-                  <button
-                    type="button"
-                    className="absolute right-4 top-3"
-                    onClick={() =>
-                      setShowConfirmPassword(!showConfirmPassword)
-                    }
-                  >
-                    {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
-                  </button>
-
-                </div>
+</div>
 
                 {/* Button */}
                 <button
