@@ -273,7 +273,7 @@ export default function Register() {
 
 </div>
 
-                {/* Button */}
+                
                 <button
                   type="submit"
                   disabled={loading}

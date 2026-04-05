@@ -8,6 +8,9 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 export default function Login() {
 
+  
+
+  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -34,6 +37,8 @@ export default function Login() {
       localStorage.setItem("role", role);
 
       toast.success("Login Successful");
+      navigate("/admin");
+      
 
 
     } catch (err) {
