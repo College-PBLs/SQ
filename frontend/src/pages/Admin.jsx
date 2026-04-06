@@ -1,4 +1,3 @@
-import AdminNav from "../components/AdminNav";
 import { useState, useEffect } from "react";
 
 export default function Admin() {
@@ -82,8 +81,6 @@ export default function Admin() {
 
   return (
     <>
-      <AdminNav />
-
       <nav className="flex justify-between border shadow shadow-pink-900 p-3">
         <div className="font-bold text-xl">Admin Panel</div>
         <div className="flex gap-4">
