@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import logo from "/src/assets/logo.jpeg";
 
 export default function Admin() {
   const [section, setSection] = useState("dashboard");
@@ -81,8 +82,8 @@ export default function Admin() {
 
   return (
     <>
-      <nav className="flex justify-between border shadow shadow-teal-900 p-3">
-        <div className="font-bold text-xl">Admin Panel</div>
+      <nav className="flex justify-between p-4 shadow">
+         <img src={logo} alt="logo" className="h-10" />
         <div className="flex gap-4">
           <button onClick={() => setSection("dashboard")}>Dashboard</button>
           <button onClick={() => setSection("stores")}>Stores</button>

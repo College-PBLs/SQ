@@ -8,10 +8,29 @@ export default function Customer() {
   const [stores, setStores] = useState([]);
   const [cart, setCart] = useState([]);
   const [view, setView] = useState("stores");
-  const [selectedStore, setSelectedStore] = useState(null);
   const [productNumber, setProductNumber] = useState("");
   const [bill, setBill] = useState(null);
   const [orders, setOrders] = useState([]);
+
+  const deleteCart = (cartId) => {
+  if (!window.confirm("Delete entire cart?")) return;
+
+  fetch(`http://127.0.0.1:8001/user/cart/${cartId}/`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then(async (res) => {
+      const data = await res.json();
+      if (!res.ok) return alert(data.error || "Failed");
+
+      fetchCart(); // refresh carts
+    })
+    .catch(() => alert("Server error"));
+};
+
+
 
   // FETCH STORES
   useEffect(() => {
@@ -48,8 +67,22 @@ export default function Customer() {
         (decodedText) => {
           if (!decodedText?.trim()) return;
           setProductNumber(decodedText);
-          alert("Scanned! Click Add to Cart.");
-          scanner.clear();
+
+
+
+         fetch("http://127.0.0.1:8001/user/cart-item/", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ product_number: decodedText, qty: 1 }),
+    })
+    .then(() => fetchCart());
+
+
+
+
         },
         () => {}
       );
@@ -58,7 +91,7 @@ export default function Customer() {
     return () => {
       if (scanner) scanner.clear().catch(() => {});
     };
-  }, [view, selectedStore]);
+  }, [view]);
 
   // ADD TO CART
   const addToCart = () => {
@@ -155,20 +188,28 @@ export default function Customer() {
       <div className="p-4">
 
         {/* STORES */}
-        {view === "stores" && (
-          <div className="grid md:grid-cols-2 gap-4">
-            {stores.map(store => (
-              <div key={store.id} className="bg-white p-4 rounded-xl shadow">
-                <h2 className="font-bold text-lg">{store.store_name}</h2>
-                <p className="text-gray-500">{store.city}</p>
-              </div>
-             
-            ))}
-            <button onClick={() => { setView("scan"); }} className="mt-4 w-full bg-teal-500 text-white px-4 py-2 rounded-lg font-semibold">
-  Scan Items
-</button>
-          </div>
-        )}
+       {view === "stores" && (
+  <>
+    <div className="grid md:grid-cols-2 gap-4">
+      {stores.map(store => (
+        <div key={store.id} className="bg-white p-4 rounded-xl shadow">
+          <h2 className="font-bold text-lg">{store.store_name}</h2>
+          <p className="text-gray-500">{store.city}</p>
+        </div>
+      ))}
+    </div>
+
+    {/* Separate section */}
+    <div className="mt-6 text-center">
+      <button
+        onClick={() => setView("scan")}
+        className="bg-teal-500 text-white px-6 py-3 rounded-lg font-semibold"
+      >
+        Start Scanning
+      </button>
+    </div>
+  </>
+)}
 
         {/* SCAN */}
         {view === "scan" && (
@@ -217,12 +258,21 @@ export default function Customer() {
                   </div>
                 ))}
 
-                <button
+                <div className="flex">
+                    <button
                   onClick={() => placeOrder(c.store || c.store_detail?.id)}
-                  className="mt-4 w-full bg-teal-500 text-white p-2 rounded"
+                  className="mt-4 mx-2 w-full bg-teal-500 text-white p-2 rounded"
                 >
                   Place Order
                 </button>
+                <button onClick={() => deleteCart(c.id)}
+                 className="mt-4 w-full bg-red-500 text-white p-2 rounded"
+>
+  Delete Cart
+</button>
+                </div>
+
+              
               </div>
             ))}
           </div>
