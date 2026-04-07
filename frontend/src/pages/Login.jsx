@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from "../services/authService";
 import logo from "../assets/logo.jpeg";
 
+import Customer from "../pages/Customer";
+
 import { toast } from "react-toastify";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
@@ -37,7 +39,13 @@ export default function Login() {
       localStorage.setItem("role", role);
 
       toast.success("Login Successful");
-      navigate("/admin");
+      
+
+      if (role === "admin") {
+  navigate("/admin");
+} if (role === "customer") {
+  navigate("/customer");
+} 
       
 
 
