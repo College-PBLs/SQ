@@ -81,7 +81,7 @@ export default function Admin() {
 
   return (
     <>
-      <nav className="flex justify-between border shadow shadow-pink-900 p-3">
+      <nav className="flex justify-between border shadow shadow-teal-900 p-3">
         <div className="font-bold text-xl">Admin Panel</div>
         <div className="flex gap-4">
           <button onClick={() => setSection("dashboard")}>Dashboard</button>
@@ -113,7 +113,7 @@ export default function Admin() {
                 <p>Status: {store.is_active ? "Active" : "Inactive"}</p>
                 <div className="flex gap-2 mt-2">
                   <button
-                    className={`px-2 py-1 rounded text-white ${store.is_active ? "bg-green-500" : "bg-yellow-500"}`}
+                    className={`px-2 py-1 rounded text-white ${store.is_active ? "bg-teal-500" : "bg-yellow-500"}`}
                     onClick={() => toggleActivation(store.id, store.is_active)}
                   >
                     {store.is_active ? "Deactivate" : "Activate"}

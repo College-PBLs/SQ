@@ -9,9 +9,6 @@ import { toast } from "react-toastify";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 export default function Login() {
-
-  
-
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
@@ -46,9 +43,6 @@ export default function Login() {
 } if (role === "customer") {
   navigate("/customer");
 } 
-      
-
-
     } catch (err) {
 
       toast.error(err.message || "Login Failed");
@@ -67,18 +61,11 @@ export default function Login() {
 
         {/* Left Side */}
         <div className="w-full lg:w-1/2 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-8">
-
           <div className="w-full max-w-md">
-
             <div className="bg-white rounded-2xl shadow-2xl p-10">
-
               {/* Logo */}
               <div className="flex justify-center mb-6">
-                <img
-                  src={logo}
-                  alt="Logo"
-                  className="h-16 object-contain"
-                />
+                <img src={logo} alt="Logo" className="h-16 object-contain" />
               </div>
 
               <h1 className="text-3xl font-bold text-gray-800 text-center mb-2">
