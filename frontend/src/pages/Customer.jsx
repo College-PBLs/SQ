@@ -11,11 +11,12 @@ export default function Customer() {
   const [productNumber, setProductNumber] = useState("");
   const [bill, setBill] = useState(null);
   const [orders, setOrders] = useState([]);
+  const BASE_URL = import.meta.env.VITE_BASE_URL;
 
   const deleteCart = (cartId) => {
   if (!window.confirm("Delete entire cart?")) return;
 
-  fetch(`http://127.0.0.1:8001/user/cart/${cartId}/`, {
+  fetch(`${BASE_URL}/user/cart/${cartId}/`, {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -97,7 +98,7 @@ export default function Customer() {
   const addToCart = () => {
     if (!productNumber.trim()) return alert("Enter product number");
 
-    fetch("http://127.0.0.1:8001/user/cart-item/", {
+    fetch("${BASE_URL}/user/cart-item/", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -119,7 +120,7 @@ export default function Customer() {
   const updateQty = (id, qty) => {
     if (qty < 1) return;
 
-    fetch(`http://127.0.0.1:8001/user/cart-item/${id}/`, {
+    fetch(`${BASE_URL}/user/cart-item/${id}/`, {
       method: "PATCH",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -139,7 +140,7 @@ export default function Customer() {
 
   // PLACE ORDER
   const placeOrder = async (store_id) => {
-    const res = await fetch("http://127.0.0.1:8001/user/orders/", {
+    const res = await fetch(`${BASE_URL}/user/orders/`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -152,7 +153,7 @@ export default function Customer() {
     if (!res.ok) return alert(data.error);
 
     const billRes = await fetch(
-      `http://127.0.0.1:8001/user/order/${data.order_id}/`,
+      `${BASE_URL}/user/order/${data.order_id}/`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
@@ -165,7 +166,7 @@ export default function Customer() {
 
   // FETCH ORDERS
   const fetchOrders = () => {
-    fetch("http://127.0.0.1:8001/user/orders/", {
+    fetch("${BASE_URL}/user/orders/", {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => res.json())
@@ -314,7 +315,7 @@ export default function Customer() {
                 <button
                   onClick={async () => {
                     const res = await fetch(
-                      `http://127.0.0.1:8001/user/order/${order.id}/`,
+                      `${BASE_URL}/user/order/${order.id}/`,
                       { headers: { Authorization: `Bearer ${token}` } }
                     );
                     const data = await res.json();

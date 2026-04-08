@@ -4,6 +4,7 @@ import logo from "/src/assets/logo.jpeg";
 export default function Admin() {
   const [section, setSection] = useState("dashboard");
   const [stores, setStores] = useState([]);
+  const BASE_URL = import.meta.env.VITE_BASE_URL;
 
   // Fetch stores
   useEffect(() => {
@@ -12,7 +13,7 @@ export default function Admin() {
         const token = localStorage.getItem("access_token");
         if (!token) return;
 
-        const res = await fetch("http://localhost:8001/stores/", {
+        const res = await fetch(`${BASE_URL}/stores/`, {
           headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`,
@@ -35,7 +36,7 @@ export default function Admin() {
   const toggleActivation = async (storeId, isActive) => {
     const token = localStorage.getItem("access_token");
     try {
-      const res = await fetch(`http://localhost:8001/store/${storeId}/activation/`, {
+      const res = await fetch(`${BASE_URL}/store/${storeId}/activation/`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -66,7 +67,7 @@ export default function Admin() {
 
     const token = localStorage.getItem("access_token");
     try {
-      const res = await fetch(`http://localhost:8001/store/delete/${storeId}/`, {
+      const res = await fetch(`${BASE_URL}/store/delete/${storeId}/`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` },
       });
