@@ -1,8 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import BaseUserManager
-from django.utils import timezone
-from datetime import timedelta
+from core.utils import *
+from django.utils.text import slugify
 
 PLANS_PRICES = {
     'basic' : 2
@@ -33,14 +33,16 @@ class User(AbstractUser):
         ('customer', 'Customer'),
         ('owner', 'Mart Owner'),
         ('admin', 'Admin'),
+        ('guard', 'Guard'),
     )
     
     username = None
     email = models.EmailField(unique=True)
+    temp_pass = models.CharField(max_length=128, null=True, blank=True)
     full_name = models.CharField(max_length=255)
     phone = models.CharField(max_length=15)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
-    profile_photo = models.ImageField(upload_to="profiles/", null=True, blank=True)
+    profile_photo = models.ImageField(upload_to=profile_photo_path, null=True, blank=True)
     address = models.CharField(max_length=255)
     city = models.CharField(max_length=100)
     state = models.CharField(max_length=100)
@@ -64,13 +66,15 @@ class Store(models.Model):
         ('monthly', 'Monthly'),
     )
 
+    slug = models.SlugField(unique=True, blank=True, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="stores")
-    name = models.CharField(max_length=255)
-    logo = models.ImageField(upload_to="store_logo/", null=True, blank=True)
-    payment_qr = models.ImageField(upload_to="payment_qr/")
+    store_name = models.CharField(max_length=255)
+    logo = models.ImageField(upload_to=store_logo_path, null=True, blank=True)
+    payment_qr = models.ImageField(upload_to=store_payment_qr_path)
     address = models.CharField(max_length=255)
     city = models.CharField(max_length=100)
     state = models.CharField(max_length=100)
+    pincode = models.CharField(max_length=6)
     gmap = models.CharField(max_length=255)
     upi_id = models.CharField(max_length=100)
     acc_holder_name = models.CharField(max_length=255)
@@ -80,7 +84,26 @@ class Store(models.Model):
     pincode = models.CharField(max_length=6)
 
     def __str__(self):
-        return f"{self.name} - {self.id}"
+        return f"{self.store_name} - {self.id}"
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(self.store_name)
+            slug = base_slug
+            counter = 1
+            while Store.objects.filter(slug=slug).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
+
+
+class Guard(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="guard")
+    store = models.ForeignKey(Store, on_delete=models.CASCADE, related_name="guards")
+
+    def __str__(self):
+        return f"{self.user.full_name} - {self.store.store_name}"
 
 
 class Product(models.Model):
@@ -96,13 +119,14 @@ class Product(models.Model):
     )
 
     name = models.CharField(max_length=255)
-    photo = models.ImageField(upload_to="products/")
+    photo = models.ImageField(upload_to=product_image_path, null=True, blank=True)
     expiry = models.DateField(null=True, blank=True)
     value = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     unit = models.CharField(max_length=10, choices=UNIT_CHOICES, default='unit')
     price = models.DecimalField(max_digits=10, decimal_places=2)
     qty = models.PositiveIntegerField()
-    product_qr = models.ImageField(upload_to="product_qr/", null=True, blank=True)
+    product_number = models.CharField(max_length=20, unique=True)
+    product_qr = models.ImageField(upload_to=product_qr_path, null=True, blank=True)
     store = models.ForeignKey(Store, on_delete=models.CASCADE, related_name="products")
 
     def __str__(self):
@@ -116,31 +140,17 @@ class Cart(models.Model):
     class Meta:
         unique_together = ('user', 'store')
 
-    def __str__(self):
-        return f"{self.user.full_name} Cart"
-
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="items")
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     qty = models.PositiveIntegerField()
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    expires_at = models.DateTimeField()
-
-    class Meta:
-        unique_together = ('cart', 'product')
-
-    def __str__(self):
-        return f"{self.product.name} x {self.qty}"
-    
-    def save(self, *args, **kwargs):
-        if not self.expires_at:
-            self.expires_at = timezone.now() + timedelta(minutes=20)
-        super().save(*args, **kwargs)
+    price_at_purchase = models.DecimalField(max_digits=10, decimal_places=2)
 
 
 class Order(models.Model):
-    order_qr = models.ImageField(upload_to="order_qr/")
+    order_number = models.CharField(max_length=20, unique=True)
+    order_qr = models.ImageField(upload_to=order_qr_path)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="orders")
     store = models.ForeignKey(Store, on_delete=models.CASCADE, related_name="orders")
@@ -171,4 +181,4 @@ class AmountGenerated(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
 
     def __str__(self):
-        return f"{self.store.name} - {self.amount}"
+        return f"{self.store.store_name} - {self.amount}"
