@@ -72,11 +72,12 @@ class CartView(APIView):
             return exception(str(e))
 
 
+    @transaction.atomic
     def delete(self, request, cart_id):
         if not isCustomer(request.user):
             return permission_denied()
         try:
-            cart = Cart.objects.get(id=cart_id, user=request.user)
+            cart = Cart.objects.select_for_update().get(id=cart_id, user=request.user)
             for item in cart.items.select_for_update():
                 item.product.qty += item.qty
                 item.product.save()
