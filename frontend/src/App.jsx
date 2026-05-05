@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
+import ProtectedRoute from "./components/ProtectedRoute";
 import "react-toastify/dist/ReactToastify.css";
 
 import Home from "./pages/Home"
@@ -16,11 +17,28 @@ function App() {
         <ToastContainer position="top-right" autoClose={3000} />
 
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
+          {/* <Route path="/home" element={<Home />} /> */}
+          <Route path="/" element={<Login />} />
+
           <Route path="/register" element={<Register />} />
-          <Route path="/admin" element={<Admin/>}/>
-          <Route path="/customer" element={<Customer/>}/>
+             <Route
+              path="/admin"
+              element={
+                <ProtectedRoute>
+                  <Admin />
+                </ProtectedRoute>
+              }
+            />
+          
+          <Route
+            path="/customer"
+            element={
+              <ProtectedRoute>
+                <Customer />
+              </ProtectedRoute>
+            }
+          />
+          
 
         </Routes>
 

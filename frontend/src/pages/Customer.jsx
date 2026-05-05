@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Html5QrcodeScanner } from "html5-qrcode";
 import logo from "/src/assets/logo.jpeg";
+import BASE_URL from '../config';
+import { useNavigate } from "react-router-dom";
 
 export default function Customer() {
   const token = localStorage.getItem("access_token");
@@ -11,7 +13,6 @@ export default function Customer() {
   const [productNumber, setProductNumber] = useState("");
   const [bill, setBill] = useState(null);
   const [orders, setOrders] = useState([]);
-  const BASE_URL = import.meta.env.VITE_BASE_URL;
 
   const deleteCart = (cartId) => {
   if (!window.confirm("Delete entire cart?")) return;
@@ -31,11 +32,20 @@ export default function Customer() {
     .catch(() => alert("Server error"));
 };
 
-
+  const fetchOrders = () => {
+  fetch(`${BASE_URL}/user/orders/`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then(res => res.json())
+    .then(data => setOrders(data.data || []))
+    .catch(console.error);
+};
 
   // FETCH STORES
   useEffect(() => {
-    fetch("http://127.0.0.1:8001/active-stores/", {
+    fetch(`${BASE_URL}/active-stores/`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => res.json())
@@ -45,7 +55,7 @@ export default function Customer() {
 
   // FETCH CART
   const fetchCart = () => {
-    fetch("http://127.0.0.1:8001/user/carts/", {
+    fetch(`${BASE_URL}/user/carts/`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => res.json())
@@ -71,7 +81,7 @@ export default function Customer() {
 
 
 
-         fetch("http://127.0.0.1:8001/user/cart-item/", {
+         fetch(`${BASE_URL}/user/cart-item/`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -80,9 +90,6 @@ export default function Customer() {
       body: JSON.stringify({ product_number: decodedText, qty: 1 }),
     })
     .then(() => fetchCart());
-
-
-
 
         },
         () => {}
@@ -98,7 +105,7 @@ export default function Customer() {
   const addToCart = () => {
     if (!productNumber.trim()) return alert("Enter product number");
 
-    fetch("${BASE_URL}/user/cart-item/", {
+    fetch(`${BASE_URL}/user/cart-item/`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -132,7 +139,7 @@ export default function Customer() {
 
   // REMOVE ITEM
   const removeItem = (id) => {
-    fetch(`http://127.0.0.1:8001/user/cart-item/${id}/`, {
+    fetch(`${BASE_URL}/user/cart-item/${id}/`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
     }).then(fetchCart);
@@ -165,13 +172,13 @@ export default function Customer() {
   };
 
   // FETCH ORDERS
-  const fetchOrders = () => {
-    fetch("${BASE_URL}/user/orders/", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then(res => res.json())
-      .then(data => setOrders(data.data || []));
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("access_token");
+    navigate("/");
   };
+
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -182,7 +189,16 @@ export default function Customer() {
         <div className="space-x-2">
           <button onClick={() => setView("stores")} className="btn">Stores</button>
           <button onClick={() => setView("cart")} className="btn">Cart</button>
-          <button onClick={() => {fetchOrders(); setView("orders")}} className="btn">Orders</button>
+          <button
+  onClick={() => {
+    fetchOrders();
+    setView("orders");
+  }}
+  className="btn"
+>
+  Orders
+</button>
+          <button onClick={handleLogout} className="btn">Logout</button>
         </div>
       </div>
 
@@ -219,7 +235,7 @@ export default function Customer() {
 
             <div id="reader" className="mb-4"></div>
 
-            <input
+            {/* <input
               value={productNumber}
               onChange={(e) => setProductNumber(e.target.value)}
               placeholder="Product number"
@@ -228,9 +244,9 @@ export default function Customer() {
 
             <button onClick={addToCart} className="w-full bg-teal-500 text-white p-2 rounded">
               Add to Cart
-            </button>
+            </button> */}
 
-            <button onClick={() => setView("cart")} className="w-full mt-2 bg-gray-300 p-2 rounded">
+            <button onClick={() => setView("cart")} className="w-full mt-2 bg-teal-300 p-2 rounded">
               Go to Cart
             </button>
           </div>
@@ -294,7 +310,7 @@ export default function Customer() {
             <h3 className="font-bold mt-3">Total: ₹{bill.total_amount}</h3>
 
             <img
-              src={`http://127.0.0.1:8001${bill.order_qr}`}
+              src={`${BASE_URL}${bill.order_qr}`}
               className="mt-4 w-40 mx-auto"
             />
 

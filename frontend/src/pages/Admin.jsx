@@ -1,36 +1,31 @@
 import { useState, useEffect } from "react";
 import logo from "/src/assets/logo.jpeg";
+import { useNavigate } from "react-router-dom";
+import BASE_URL from '../config';
 
 export default function Admin() {
   const [section, setSection] = useState("dashboard");
   const [stores, setStores] = useState([]);
-  const BASE_URL = import.meta.env.VITE_BASE_URL;
 
-  // Fetch stores
+
   useEffect(() => {
-    const fetchStores = async () => {
-      try {
-        const token = localStorage.getItem("access_token");
-        if (!token) return;
+  const fetchStores = async () => {
+    const token = localStorage.getItem("access_token");
+    if (!token) return;
 
-        const res = await fetch(`${BASE_URL}/stores/`, {
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-          },
-        });
+    const res = await fetch(`${BASE_URL}/stores/`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-        if (res.status === 401) return;
+    const data = await res.json();
+    setStores(Array.isArray(data.data) ? data.data : []);
+  };
 
-        const data = await res.json();
-        setStores(Array.isArray(data.data) ? data.data : []);
-      } catch (err) {
-        console.error("Error fetching stores:", err);
-      }
-    };
-
-    if (section === "dashboard" || section === "stores") fetchStores();
-  }, [section]);
+  fetchStores();
+}, []);
 
   // Toggle store activation
   const toggleActivation = async (storeId, isActive) => {
@@ -80,6 +75,13 @@ export default function Admin() {
       console.error(err);
     }
   };
+  
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    console.log("hello")
+    localStorage.removeItem("access_token");
+    navigate("/");
+  };
 
   return (
     <>
@@ -88,6 +90,7 @@ export default function Admin() {
         <div className="flex gap-4">
           <button onClick={() => setSection("dashboard")}>Dashboard</button>
           <button onClick={() => setSection("stores")}>Stores</button>
+          <button onClick={handleLogout}>Logout</button>
         </div>
       </nav>
 

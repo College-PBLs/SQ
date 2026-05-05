@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_BASE_URL;
+import BASE_URL from '../config';
 
 export async function loginUser(data) {
   const res = await fetch(`${BASE_URL}/auth/login/`, {

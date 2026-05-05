@@ -4,10 +4,9 @@ import logo from "../assets/logo.jpeg";
 export default function Footer() {
   return (
     <footer className="bg-gray-900 text-gray-300 mt-auto">
-
+{/* 
       <div className="max-w-7xl mx-auto px-8 py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
 
-        {/* Logo + About */}
         <div>
           <div className="flex items-center gap-3 mb-4">
             <img src={logo} alt="logo" className="h-10" />
@@ -18,7 +17,6 @@ export default function Footer() {
           </p>
         </div>
 
-        {/* Quick Links */}
         <div>
           <h3 className="text-white font-semibold mb-4">Quick Links</h3>
           <ul className="space-y-2">
@@ -34,7 +32,6 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* Contact */}
         <div>
           <h3 className="text-white font-semibold mb-4">Contact</h3>
           <p className="text-sm">Email: support@s3.com</p>
@@ -42,11 +39,9 @@ export default function Footer() {
         </div>
 
       </div>
-
-      {/* Bottom Bar */}
       <div className="border-t border-gray-700 text-center py-4 text-sm">
         © {new Date().getFullYear()} S³. All rights reserved.
-      </div>
+      </div> */}
 
     </footer>
   );
